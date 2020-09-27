@@ -1,0 +1,19 @@
+{
+  "players":
+  [
+    { "name": "Nico", "surname":  "Giangiacomi" },
+    { "name": "Mariusz", "surname":  "Jedrychowski" },
+    { "name": "Gaia", "surname":  "Grosso" },
+    { "name": "Eleonora", "surname":  "Rossi" },
+    { "name": "Dimitra", "surname":  "Chatzichrysou" },
+    { "name": "Elisa", "surname":  "Fontanesi" },
+    { "name": "Marco", "surname":  "Esposito" },
+    { "name": "Yago", "surname":  "Vila" },
+    { "name": "Francisco", "surname":  "Barros" },
+    { "name": "Ulf", "surname":  "Behrens" },
+    { "name": "Edgar", "surname":  "Meireles" },
+    { "name": "Stella", "surname":  "Christodoulaki" },
+    { "name": "Melissa", "surname":  "Sebo" },
+    { "name": "Pawel", "surname":  "Ptasznik" }
+  ]
+}

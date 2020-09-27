@@ -1,0 +1,24 @@
+{
+  "players":
+  [
+    { "name": "Gaia", "surname": "Grosso", "phone": "00393403689770" },
+    { "name": "Mariusz", "surname": "Jedrychowski", "phone": "0041754113728" },
+    { "name": "Pawel", "surname": "Ptasznik", "phone": "0033786330061" },
+    { "name": "Eleonora", "surname": "Rossi", "phone": "00393337909869" },
+    { "name": "Uwe", "surname": "Käuflin", "phone": "00491752514228" },
+    { "name": "Markus", "surname": "Keil", "phone": "0049796688220" },
+    { "name": "Nico", "surname": "Giangiacomi", "phone": "0033644125991" },
+    { "name": "Brieuc", "surname": "Francois", "phone": "0032495945112" },
+    { "name": "Marco", "surname": "Esposito", "phone": "0033781080549" },
+    { "name": "Dimitra", "surname": "Chatzichrysou", "phone": "00306987003291" },
+    { "name": "Francisco", "surname": "Barros", "phone": "0033749009074" },
+    { "name": "Elisa", "surname": "Fontanesi", "phone": "00393288726791" },
+    { "name": "Ulf", "surname": "Behrens", "phone": "0033631066649" },
+    { "name": "Evgeniya", "surname": "Cheremushkina", "phone": "0041767131856" },
+    { "name": "Rosalinde", "surname": "Pots", "phone": "0041762860796" },
+    { "name": "Lucie", "surname": "Navratilova", "phone": "0041796554148" },
+    { "name": "Giulia", "surname": "Gnemmi", "phone": "00393495889716" },
+    { "name": "Yago", "surname": "Vila", "phone": "0041764026722" },
+    { "name": "Melissa", "surname": "Sebo", "phone": "0041788560306"}
+  ]
+}
