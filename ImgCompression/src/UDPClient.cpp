@@ -50,7 +50,7 @@ bool UDPClient::setDestination(const std::string& address, uint16_t port)
 int UDPClient::send(const uint8_t* data, size_t length)
 {
   logger_->debug("Sending data: {}", length);
-  return sendto(sockfd_, (const char *)data, length, MSG_CONFIRM,
+  return sendto(sockfd_, (const char *)data, length, 0,
     (const struct sockaddr *) &servaddr_, sizeof(servaddr_));
   return 0;
 }

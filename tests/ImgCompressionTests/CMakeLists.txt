@@ -1,6 +1,7 @@
 add_executable(ut-imgcompression
   main.cpp
   NetworkTests.cpp
+  Reproduction.cpp
 )
 target_link_libraries(ut-imgcompression
   gmock
