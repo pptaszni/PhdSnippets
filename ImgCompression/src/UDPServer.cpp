@@ -4,6 +4,7 @@
 
 #include "UDPServer.hpp"
 
+#include <chrono>
 #include <cstring>
 #include <string>
 
@@ -12,8 +13,11 @@
 #include <sys/socket.h>
 #include <errno.h>
 
-UDPServer::UDPServer(int port): logger_("UDPServer")
+constexpr auto WAIT_TIME = std::chrono::milliseconds(1);
+
+UDPServer::UDPServer(int port, std::chrono::duration<int> timeout): logger_("UDPServer")
   , port_(port)
+  , timeout_(timeout)
   , sockfd_(0)
   , servaddr_{}
   , cliaddr_{}
@@ -77,3 +81,22 @@ bool UDPServer::isConnected()
 {
   return false;
 }
+
+
+  // int numBytesRead = 0;
+  // auto start = std::chrono::high_resolution_clock::now();
+  // do {
+  //     int retval = recvfrom(sockfd_, (char *)data, length, MSG_DONTWAIT, (struct sockaddr*) &cliaddr_, &len);
+  //     if (retval > -1) {
+  //         numBytesRead += retval;
+  //     }
+  //     if (retval <= -1 && errno != EAGAIN && errno != EWOULDBLOCK) {
+  //         logger_->warn("Failed to read: {}", std::strerror(errno));
+  //         return numBytesRead;
+  //     }
+  //     std::this_thread::sleep_for(WAIT_TIME*(length - numBytesRead));
+  //     if ((timeout_.count() != 0) && (std::chrono::high_resolution_clock::now() - start > timeout_)) {  // NOLINT
+  //         logger_->warn("Read timeout");
+  //         return numBytesRead;
+  //     }
+  // } while (numBytesRead < length);

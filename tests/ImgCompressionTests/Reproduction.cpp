@@ -8,6 +8,7 @@
 #include <chrono>
 #include <memory>
 #include <thread>
+#include <iostream>
 
 class IClock
 {
@@ -42,6 +43,18 @@ class MyFixture: public ::testing::Test
 
 TEST_F(MyFixture, xxx)
 {
+  EXPECT_CALL(*_clockMock, now()).WillRepeatedly(Invoke([]() {
+    throw std::runtime_error("xxx");
+    return std::chrono::steady_clock::now();
+  }));
+  try
+  {
+    _clockMock->now();
+  }
+  catch(...)
+  {
+    std::cout << "got exception" << std::endl;
+  }
 }
 
 TEST_F(MyFixture, yyy)

@@ -1,5 +1,6 @@
 add_executable(ut-imgcompression
   main.cpp
+  AsyncWorkerTests.cpp
   NetworkTests.cpp
   Reproduction.cpp
 )

@@ -4,8 +4,38 @@
 
 #include "AsyncFrameListener.hpp"
 
+#include <opencv2/core.hpp>
+
+#include <chrono>
+#include <cstdint>
+#include <future>
+
+constexpr auto SLEEP_TIME = std::chrono::milliseconds(1);
+constexpr size_t MAX_PAYLOAD = 200;
+
+bool operator==(const ROI& left, const ROI& right)
+{
+  return (left.upperLeftX == right.upperLeftX) &&
+    (left.upperLeftY == right.upperLeftY) &&
+    (left.bottomRightX == right.bottomRightX) &&
+    (left.bottomRightY == right.bottomRightY);
+}
+
+bool operator!=(const ROI& left, const ROI& right)
+{
+  return !(left == right);
+}
+std::ostream& operator<<(std::ostream& stream, const ROI& roi)
+{
+  stream << "[ " << roi.upperLeftX << ", " << roi.upperLeftY
+    << ", " << roi.bottomRightX << ", " << roi.bottomRightY << " ]";
+    return stream;
+}
+
 AsyncFrameListener::AsyncFrameListener(std::shared_ptr<INetworkClient> networkClient): logger_("AsyncFrameListener")
   , networkClient_(networkClient)
+  , stop_(true)
+  , frame_(20, 10, CV_8UC1, cv::Scalar(69))
   , cb_(nullptr)
   , asyncTask_()
 {
@@ -17,12 +47,60 @@ AsyncFrameListener::~AsyncFrameListener()
   stop();
 }
 
+void AsyncFrameListener::setOnFrameCallback(Callback cb)
+{
+  cb_ = cb;
+}
+
 bool AsyncFrameListener::start()
 {
-  return false;
+  if (asyncTask_.valid())
+  {
+    logger_->warn("Task already running");
+    return false;
+  }
+  if (!networkClient_->connect())
+  {
+    logger_->warn("Failed to connect network client");
+    return false;
+  }
+  stop_ = false;
+  asyncTask_ = std::async(std::launch::async, [this]()
+    {
+      while (!stop_)
+      {
+        asyncLoop();
+      }
+    });
+  return true;
 }
 
 bool AsyncFrameListener::stop()
 {
-  return false;
+  if (!asyncTask_.valid())
+  {
+    logger_->warn("Task already stopped");
+    return false;
+  }
+  stop_ = true;
+  asyncTask_.get();
+  networkClient_->disconnect();
+  return true;
+}
+
+void AsyncFrameListener::requestRoi(const ROI& roi)
+{
+  logger_->debug("Requested new ROI: {}", roi);
+  uint8_t buff[sizeof(ROI)];
+  std::memcpy(buff, &roi, sizeof(ROI));
+  networkClient_->send(buff, sizeof(ROI));
+}
+
+void AsyncFrameListener::asyncLoop()
+{
+  uint8_t buff[MAX_PAYLOAD];
+  networkClient_->receive(buff, sizeof(buff));
+  if (!cb_) return;
+  std::memcpy(frame_.data, buff, MAX_PAYLOAD);
+  cb_(frame_);
 }

@@ -7,6 +7,7 @@
 #include "INetworkServer.hpp"
 #include "Logger.hpp"
 
+#include <chrono>
 #include <cstdint>
 #include <string>
 
@@ -15,7 +16,7 @@
 
 class UDPServer: public INetworkServer {
  public:
-  UDPServer(int port);
+  UDPServer(int port, std::chrono::duration<int> timeout = std::chrono::seconds(1));
   ~UDPServer() override = default;
   bool acceptConnection(bool blocking = true) override;
   bool disconnect() override;
@@ -27,6 +28,7 @@ class UDPServer: public INetworkServer {
 private:
   Logger logger_;
   int port_;
+  std::chrono::duration<int> timeout_;
   int sockfd_;
   struct sockaddr_in servaddr_;
   struct sockaddr_in cliaddr_;
