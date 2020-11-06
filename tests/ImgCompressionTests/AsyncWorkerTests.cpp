@@ -80,17 +80,24 @@ bool areEqual(const cv::Mat a, const cv::Mat b)
   return std::equal(a.begin<uchar>(), a.end<uchar>(), b.begin<uchar>());
 }
 
+// TODO: testeed just this simple scenario, maybe later test something more
 TEST_F(AsyncWorkerFixture, callbackWithCorrectFrame)
 {
-  cv::Mat frame(20, 10, CV_8UC1);
+  cv::Mat frame(64, 48, CV_8UC1);
   size_t framesize = frame.total();
   std::generate(frame.data, frame.data+framesize, [n = 0]() mutable { return n++; });
   std::condition_variable cvar;
-  EXPECT_CALL(*networkMock_, receive(_, _)).WillRepeatedly(Invoke([this, frame, framesize](uint8_t* data, size_t length)
+  EXPECT_CALL(*networkMock_, receive(_, _)).WillRepeatedly(Invoke([this, frame](uint8_t* data, size_t length)
   {
+    if (length == sizeof(MsgHeader))
+    {
+      MsgHeader h{ (uint16_t)frame.total(), (uint16_t)frame.cols, (uint16_t)frame.rows, 0 };
+      h.crc = h.calculateCrc();
+      std::memcpy(data, &h, length);
+      return length;
+    }
     logger_->debug("receive: going to copy data of size: {}", length);
-    std::memcpy(data, frame.data, framesize);
-    std::fill(data + framesize, data+length, 0);
+    std::memcpy(data, frame.data, length);
     return length;
   }));
   cv::Mat result;

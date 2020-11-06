@@ -10,6 +10,9 @@
 #include <thread>
 #include <iostream>
 
+#include <QJsonObject>
+#include <QDebug>
+
 class IClock
 {
 public:
@@ -59,4 +62,19 @@ TEST_F(MyFixture, xxx)
 
 TEST_F(MyFixture, yyy)
 {
+  QJsonObject obj1({{"bla1", "lab1"}});
+  QJsonObject obj2({{"bla2", "lab2"}});
+  QJsonObject obj34({{"bla3", "lab3"}, {"bla4", "lab4"}});
+  QJsonObject result;
+  for (const auto& json : {obj1, obj2, obj34})
+  {
+    for (auto it = json.begin(); it != json.end(); it++)
+    {
+      result.insert(it.key(), it.value());
+    }
+  }
+  for (auto it = result.begin(); it != result.end(); it++)
+  {
+    qDebug() << it.key() << ": " << it.value();
+  }
 }

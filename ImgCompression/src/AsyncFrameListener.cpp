@@ -9,9 +9,9 @@
 #include <chrono>
 #include <cstdint>
 #include <future>
+#include <thread>
 
 constexpr auto SLEEP_TIME = std::chrono::milliseconds(1);
-constexpr size_t MAX_PAYLOAD = 200;
 
 bool operator==(const ROI& left, const ROI& right)
 {
@@ -35,7 +35,6 @@ std::ostream& operator<<(std::ostream& stream, const ROI& roi)
 AsyncFrameListener::AsyncFrameListener(std::shared_ptr<INetworkClient> networkClient): logger_("AsyncFrameListener")
   , networkClient_(networkClient)
   , stop_(true)
-  , frame_(20, 10, CV_8UC1, cv::Scalar(69))
   , cb_(nullptr)
   , asyncTask_()
 {
@@ -98,9 +97,30 @@ void AsyncFrameListener::requestRoi(const ROI& roi)
 
 void AsyncFrameListener::asyncLoop()
 {
-  uint8_t buff[MAX_PAYLOAD];
-  networkClient_->receive(buff, sizeof(buff));
+  std::this_thread::sleep_for(SLEEP_TIME);
+  uint8_t header_buff[sizeof(MsgHeader)];
+  int result = networkClient_->receive(header_buff, sizeof(MsgHeader));
+  // TODO: no error handling, we just fall through is sth goes wrong, maybe later correct it
+  if (result != sizeof(MsgHeader))
+  {
+    logger_->warn("received {} instead of {}", result, sizeof(MsgHeader));
+  }
+  MsgHeader header;
+  std::memcpy(&header, header_buff, sizeof(MsgHeader));
+  if (header.crc != header.calculateCrc())
+  {
+    logger_->warn("CRC mismatch, expected {} vs {}", header.calculateCrc(), header.crc);
+  }
+  logger_->debug("Going to receive {} data for {}x{} frame",
+    header.payload, header.width, header.height);
+  std::unique_ptr<uint8_t[]> buff(new uint8_t[header.payload]);
+  result = networkClient_->receive(buff.get(), header.payload);
+  if (result != header.payload)
+  {
+    logger_->warn("received {} instead of {}", result, header.payload);
+  }
   if (!cb_) return;
-  std::memcpy(frame_.data, buff, MAX_PAYLOAD);
-  cb_(frame_);
+  cv::Mat frame(header.width, header.height, CV_8UC1, cv::Scalar(0));
+  std::memcpy(frame.data, buff.get(), result);
+  cb_(frame);
 }

@@ -10,9 +10,19 @@
 #include <opencv2/core.hpp>
 
 #include <atomic>
+#include <cstdint>
 #include <future>
-#include <memory>
 #include <iostream>
+#include <memory>
+
+struct MsgHeader
+{
+  uint16_t payload;
+  uint16_t width;
+  uint16_t height;
+  uint8_t crc;
+  uint8_t calculateCrc() { return (payload + width + height) % 255; }
+};
 
 struct ROI
 {
@@ -30,18 +40,18 @@ class AsyncFrameListener
 public:
   using Callback = std::function<void(const cv::Mat& frame)>;
   AsyncFrameListener(std::shared_ptr<INetworkClient> networkClient);
-  ~AsyncFrameListener();
-  void setOnFrameCallback(Callback cb);
-  bool start();
-  bool stop();
-  void requestRoi(const ROI& roi);
+  // virtual for mocking, too lazy to do another interface
+  virtual ~AsyncFrameListener();
+  virtual void setOnFrameCallback(Callback cb);
+  virtual bool start();
+  virtual bool stop();
+  virtual void requestRoi(const ROI& roi);
 
 private:
   void asyncLoop();
   Logger logger_;
   std::shared_ptr<INetworkClient> networkClient_;
   std::atomic_bool stop_;
-  cv::Mat frame_;
   Callback cb_;
   std::future<void> asyncTask_;
 };

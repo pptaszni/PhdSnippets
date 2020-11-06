@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "AsyncFrameListener.hpp"
+
 #include <memory>
 
 #include <QMainWindow>
@@ -20,10 +22,11 @@ class MainWindow : public QMainWindow
 {
   Q_OBJECT
 public:
-  MainWindow(QWidget* parent = nullptr);
+  MainWindow(std::shared_ptr<AsyncFrameListener> listener, QWidget* parent = nullptr);
   ~MainWindow();
 
 private:
   std::unique_ptr<Ui::MainWindow> ui_;
   QPixmap frame_pixmap_;
+  std::shared_ptr<AsyncFrameListener> listener_;
 };

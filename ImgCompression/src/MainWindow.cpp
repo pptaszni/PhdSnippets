@@ -15,9 +15,10 @@
 constexpr int FRAME_WIDTH = 960;
 constexpr int FRAME_HEIGHT = 540;
 
-MainWindow::MainWindow(QWidget* parent): QMainWindow(parent)
+MainWindow::MainWindow(std::shared_ptr<AsyncFrameListener> listener, QWidget* parent): QMainWindow(parent)
   , ui_(new Ui::MainWindow)
   , frame_pixmap_(FRAME_WIDTH, FRAME_HEIGHT)
+  , listener_(listener)
 {
   ui_->setupUi(this);
   ui_->graphicsView->setScene(new QGraphicsScene(this));
