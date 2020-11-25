@@ -6,6 +6,7 @@
 
 #include "INetworkClient.hpp"
 #include "Logger.hpp"
+#include "MsgHeader.hpp"
 
 #include <opencv2/core.hpp>
 
@@ -14,15 +15,6 @@
 #include <future>
 #include <iostream>
 #include <memory>
-
-struct MsgHeader
-{
-  uint16_t payload;
-  uint16_t width;
-  uint16_t height;
-  uint8_t crc;
-  uint8_t calculateCrc() { return (payload + width + height) % 255; }
-};
 
 struct ROI
 {

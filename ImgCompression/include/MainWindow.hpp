@@ -8,6 +8,8 @@
 
 #include <memory>
 
+#include <opencv2/core.hpp>
+
 #include <QMainWindow>
 #include <QPixmap>
 #include <QWidget>
@@ -25,7 +27,14 @@ public:
   MainWindow(std::shared_ptr<AsyncFrameListener> listener, QWidget* parent = nullptr);
   ~MainWindow();
 
+signals:
+  void frameReady();
+
+private slots:
+  void refreshFrame();
+
 private:
+  void frameCallback(const cv::Mat& frame);
   std::unique_ptr<Ui::MainWindow> ui_;
   QPixmap frame_pixmap_;
   std::shared_ptr<AsyncFrameListener> listener_;

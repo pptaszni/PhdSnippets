@@ -16,7 +16,7 @@ UDPClient::UDPClient(const std::string& addr, int port): logger_("UDPClient")
   , sockfd_(0)
   , servaddr_{}
 {
-  logger_->debug("CTor({})", addr);
+  logger_->debug("CTor({}, {})", addr, port);
   std::memset(&servaddr_, 0, sizeof(servaddr_));
   servaddr_.sin_family = AF_INET;
   servaddr_.sin_port = htons(port_);

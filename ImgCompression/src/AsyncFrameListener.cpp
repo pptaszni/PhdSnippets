@@ -48,11 +48,13 @@ AsyncFrameListener::~AsyncFrameListener()
 
 void AsyncFrameListener::setOnFrameCallback(Callback cb)
 {
+  logger_->debug("setOnFrameCallback");
   cb_ = cb;
 }
 
 bool AsyncFrameListener::start()
 {
+  logger_->debug("start");
   if (asyncTask_.valid())
   {
     logger_->warn("Task already running");
@@ -66,6 +68,7 @@ bool AsyncFrameListener::start()
   stop_ = false;
   asyncTask_ = std::async(std::launch::async, [this]()
     {
+      networkClient_->send((const uint8_t*)"Hello", 5);
       while (!stop_)
       {
         asyncLoop();
@@ -76,6 +79,7 @@ bool AsyncFrameListener::start()
 
 bool AsyncFrameListener::stop()
 {
+  logger_->debug("stop");
   if (!asyncTask_.valid())
   {
     logger_->warn("Task already stopped");

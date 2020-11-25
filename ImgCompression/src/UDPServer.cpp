@@ -22,7 +22,7 @@ UDPServer::UDPServer(int port, std::chrono::duration<int> timeout): logger_("UDP
   , servaddr_{}
   , cliaddr_{}
 {
-  logger_->debug("CTor");
+  logger_->debug("CTor({})", port);
   std::memset(&servaddr_, 0, sizeof(servaddr_));
   std::memset(&cliaddr_, 0, sizeof(cliaddr_));
   servaddr_.sin_family = AF_INET;
@@ -35,6 +35,7 @@ UDPServer::UDPServer(int port, std::chrono::duration<int> timeout): logger_("UDP
 
 bool UDPServer::acceptConnection(bool blocking)
 {
+  logger_->debug("acceptConnection");
   sockfd_ = socket(AF_INET, SOCK_DGRAM, 0);
   if (sockfd_ < 0 )
   {

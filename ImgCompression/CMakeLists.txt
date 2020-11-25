@@ -45,3 +45,9 @@ add_executable(frames_compression_gui src/gui.cpp)
 target_link_libraries(frames_compression_gui
   ImgCompression
 )
+
+add_executable(frames_source src/frames_source.cpp)
+target_link_libraries(frames_source
+  ${Boost_LIBRARIES}
+  ImgCompression
+)
