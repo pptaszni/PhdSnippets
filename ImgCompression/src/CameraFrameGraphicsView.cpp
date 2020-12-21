@@ -34,6 +34,7 @@ void CameraFrameGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 {
   if (event->button() == Qt::LeftButton)
   {
+    qDebug() << "mouseReleaseEvent[" << event->x() << ", " << event->y() << "]";
     auto p = mapToScene(event->pos()).toPoint();
     if (!(p.x() == origin_.x() && p.y() == origin_.y()))
     {

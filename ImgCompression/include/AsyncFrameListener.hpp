@@ -7,6 +7,7 @@
 #include "INetworkClient.hpp"
 #include "Logger.hpp"
 #include "MsgHeader.hpp"
+#include "ROI.hpp"
 
 #include <opencv2/core.hpp>
 
@@ -15,17 +16,6 @@
 #include <future>
 #include <iostream>
 #include <memory>
-
-struct ROI
-{
-  int upperLeftX;
-  int upperLeftY;
-  int bottomRightX;
-  int bottomRightY;
-};
-bool operator==(const ROI& left, const ROI& right);
-bool operator!=(const ROI& left, const ROI& right);
-std::ostream& operator<<(std::ostream& stream, const ROI& roi);
 
 class AsyncFrameListener
 {

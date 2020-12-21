@@ -4,6 +4,7 @@
 
 #include "MainWindow.hpp"
 #include "AsyncFrameListenerMock.hpp"
+#include "CameraFrameGraphicsView.hpp"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -14,6 +15,7 @@
 #include <QPushButton>
 #include <QTest>
 #include <QGraphicsView>
+#include <QSignalSpy>
 
 #include <memory>
 
@@ -63,6 +65,33 @@ TEST_F(MainWindowFixture, startStopToggleListenToFrames)
 
 TEST_F(MainWindowFixture, requestRoiWhenItIsSelected)
 {
+  // TODO maybe later have these dimensions as settings
+  constexpr int FRAME_WIDTH = 960;
+  constexpr int FRAME_HEIGHT = 540;
+  auto graphicsView = dynamic_cast<CameraFrameGraphicsView*>(sut_->findChild<QGraphicsView*>("graphicsView"));
+  ASSERT_FALSE(!graphicsView);
+  ROI roi{};
+  EXPECT_CALL(*listenerMock_, requestRoi(_)).WillRepeatedly(Invoke([&roi](const ROI& r) { roi = r; }));
+  QSignalSpy spy(graphicsView, SIGNAL(focusSelected(QRect)));
+  QTest::mousePress(graphicsView->viewport(), Qt::LeftButton);
+  QTest::mouseMove(graphicsView->viewport(), QPoint(100, 100), 100);
+  QTest::mouseRelease(graphicsView->viewport(), Qt::LeftButton);
+  spy.wait(100);
+  ASSERT_EQ(1, spy.size());
+  QRect selection = spy.takeFirst().at(0).toRect().normalized();
+  ASSERT_FLOAT_EQ((float)selection.topLeft().x()/FRAME_WIDTH, roi.upperLeftX);
+  // reset selection
+  // fuck it :/ for some reason QTest doesnt move the mouse correctly
+  // anyway, I checked manually and it seems OK
+  // QTest::mousePress(graphicsView->viewport(), Qt::LeftButton);
+  // QTest::mouseMove(graphicsView->viewport(), QPoint(10, 20), 100);
+  // QTest::mouseRelease(graphicsView->viewport(), Qt::LeftButton);
+  // spy.wait(100);
+  // ASSERT_EQ(1, spy.size());
+  // ASSERT_FLOAT_EQ(0.0, roi.upperLeftX);
+  // ASSERT_FLOAT_EQ(0.0, roi.upperLeftY);
+  // ASSERT_FLOAT_EQ(0.0, roi.bottomRightX);
+  // ASSERT_FLOAT_EQ(0.0, roi.bottomRightY);
 }
 
 TEST_F(MainWindowFixture, displayFrameWhenItArrives)

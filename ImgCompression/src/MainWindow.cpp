@@ -27,6 +27,7 @@ MainWindow::MainWindow(std::shared_ptr<AsyncFrameListener> listener, QWidget* pa
   , ui_(new Ui::MainWindow)
   , frame_pixmap_(FRAME_WIDTH, FRAME_HEIGHT)
   , listener_(listener)
+  , roiFocused_(false)
 {
   ui_->setupUi(this);
   ui_->graphicsView->setScene(new QGraphicsScene(this));
@@ -39,6 +40,7 @@ MainWindow::MainWindow(std::shared_ptr<AsyncFrameListener> listener, QWidget* pa
   });
   QObject::connect(ui_->stopPushButton, &QPushButton::clicked, [this]() { listener_->stop(); });
   QObject::connect(this, &MainWindow::frameReady, this, &MainWindow::refreshFrame);
+  QObject::connect(ui_->graphicsView, &CameraFrameGraphicsView::focusSelected, this, &MainWindow::focusSelected);
 }
 
 MainWindow::~MainWindow()
@@ -62,3 +64,25 @@ void MainWindow::frameCallback(const cv::Mat& frame)
   emit frameReady();
 }
 
+void MainWindow::focusSelected(QRect selection)
+{
+  qDebug() << "focusSelected: " << selection;
+  if (roiFocused_)
+  {
+    qDebug() << "Going to reset focus";
+    roiFocused_ = false;
+    // reset focus
+    listener_->requestRoi({0.0, 0.0, 0.0, 0.0});
+    return;
+  }
+  qDebug() << "Going to normalize ROI relative to the frame size";
+  ROI roi{
+    (float)selection.normalized().topLeft().x()/FRAME_WIDTH,
+    (float)selection.normalized().topLeft().y()/FRAME_HEIGHT,
+    (float)selection.normalized().bottomRight().x()/FRAME_WIDTH,
+    (float)selection.normalized().bottomRight().y()/FRAME_HEIGHT
+  };
+  qDebug() << "ROI: " << roi;
+  roiFocused_ = true;
+  listener_->requestRoi(roi);
+}

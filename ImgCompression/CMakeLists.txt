@@ -20,6 +20,7 @@ add_library(ImgCompression SHARED
   src/HEVCVideoEncoder.cpp
   src/Logger.cpp
   src/MainWindow.cpp
+  src/ROI.cpp
   src/UDPClient.cpp
   src/UDPServer.cpp
 )

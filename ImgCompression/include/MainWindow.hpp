@@ -12,6 +12,7 @@
 
 #include <QMainWindow>
 #include <QPixmap>
+#include <QRect>
 #include <QWidget>
 
 namespace Ui
@@ -32,10 +33,12 @@ signals:
 
 private slots:
   void refreshFrame();
+  void focusSelected(QRect selection);
 
 private:
   void frameCallback(const cv::Mat& frame);
   std::unique_ptr<Ui::MainWindow> ui_;
   QPixmap frame_pixmap_;
   std::shared_ptr<AsyncFrameListener> listener_;
+  bool roiFocused_;
 };

@@ -20,7 +20,7 @@ public:
 
 signals:
   void leftMousePressed(int x, int y);
-  void focusSelected(QRect selction);
+  void focusSelected(QRect selection);
 
 protected:
   void mousePressEvent(QMouseEvent *event) override;
