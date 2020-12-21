@@ -9,6 +9,7 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
+#include <algorithm>
 #include <memory>
 
 #include <QDebug>
@@ -82,6 +83,10 @@ void MainWindow::focusSelected(QRect selection)
     (float)selection.normalized().bottomRight().x()/FRAME_WIDTH,
     (float)selection.normalized().bottomRight().y()/FRAME_HEIGHT
   };
+  roi.upperLeftX = std::clamp(roi.upperLeftX, 0.0f, 1.0f);
+  roi.upperLeftY = std::clamp(roi.upperLeftY, 0.0f, 1.0f);
+  roi.bottomRightX = std::clamp(roi.bottomRightX, 0.0f, 1.0f);
+  roi.bottomRightY = std::clamp(roi.bottomRightY, 0.0f, 1.0f);
   qDebug() << "ROI: " << roi;
   roiFocused_ = true;
   listener_->requestRoi(roi);
