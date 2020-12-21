@@ -28,7 +28,7 @@ int main(int argc, char** argv)
     ("help", "produce help message")
     ("fps", po::value<float>()->default_value(1.0),
       "frames per second to be used with compression algorithms")
-    ("scale", po::value<int>()->default_value(1),
+    ("scale", po::value<int>()->default_value(20),
       "resize the images by scale");
   po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -57,13 +57,13 @@ int main(int argc, char** argv)
   while (c != 'q')
   {
     cv::Mat m = framesSource.getNextFrame();
-    m.convertTo(m, CV_8U);
-    cv::resize(m, m, cv::Size(), 0.05, 0.05, cv::INTER_CUBIC);
+    cv::cvtColor(m, m, cv::COLOR_BGR2GRAY);
     MsgHeader h{(uint16_t)m.total(), (uint16_t)m.size().width, (uint16_t)m.size().height, 0};
     h.crc = h.calculateCrc();
     server.send((uint8_t*)&h, sizeof(h));
     server.send(m.data, m.total());
-    std::cin >> c;
+    cv::imshow("Preview", m);
+    cv::waitKey(0);
   }
   return 0;
 }

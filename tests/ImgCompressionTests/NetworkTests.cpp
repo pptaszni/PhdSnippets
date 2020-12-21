@@ -40,6 +40,8 @@ TEST_F(NetworkFixture, sendAndReceiveDataCorrectly)
       server_->send(reinterpret_cast<const uint8_t*>(expectedRep.data()), expectedRep.size());
       return std::string((char*)buff.get(), msgLen);
     });
+  // super bad practice! should rather be condition variable
+  std::this_thread::sleep_for(std::chrono::milliseconds(1));
   client_->send(reinterpret_cast<const uint8_t*>(expectedMsg.data()), msgLen);
   std::unique_ptr<uint8_t[]> buff(new uint8_t[repLen]);
   client_->receive(buff.get(), repLen);

@@ -124,7 +124,7 @@ void AsyncFrameListener::asyncLoop()
     logger_->warn("received {} instead of {}", result, header.payload);
   }
   if (!cb_) return;
-  cv::Mat frame(header.width, header.height, CV_8UC1, cv::Scalar(0));
+  cv::Mat frame(header.height, header.width, CV_8UC1, cv::Scalar(0));
   std::memcpy(frame.data, buff.get(), result);
   cb_(frame);
 }
