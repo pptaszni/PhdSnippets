@@ -23,6 +23,7 @@ add_library(ImgCompression SHARED
   src/ROI.cpp
   src/UDPClient.cpp
   src/UDPServer.cpp
+  src/UnderwaterRobot.cpp
 )
 target_include_directories(ImgCompression PUBLIC include)
 target_link_libraries(ImgCompression
