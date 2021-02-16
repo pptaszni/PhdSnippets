@@ -5,8 +5,10 @@
 #include "AsyncFrameListener.hpp"
 #include "NetworkClientMock.hpp"
 #include "Logger.hpp"
+#include "CompressionAlgorithmTypes.hpp"
 
 #include <opencv2/core.hpp>
+#include <opencv2/imgcodecs.hpp>
 
 #include <algorithm>
 #include <condition_variable>
@@ -33,7 +35,8 @@ class AsyncWorkerFixture: public ::testing::Test
   {
     networkMock_.reset(new NiceMock<NetworkClientMock>);
     ON_CALL(*networkMock_, connect(_)).WillByDefault(Return(true));
-    sut_.reset(new AsyncFrameListener(networkMock_));
+    // TODO: for now only testing no compression scenario to be able to compare frames
+    sut_.reset(new AsyncFrameListener(networkMock_, NONE));
   }
 
   Logger logger_;

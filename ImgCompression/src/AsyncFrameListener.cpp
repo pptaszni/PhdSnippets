@@ -3,8 +3,10 @@
  */
 
 #include "AsyncFrameListener.hpp"
+#include "CompressionAlgorithmTypes.hpp"
 
 #include <opencv2/core.hpp>
+#include <opencv2/imgcodecs.hpp>
 
 #include <chrono>
 #include <cstdint>
@@ -13,8 +15,9 @@
 
 constexpr auto SLEEP_TIME = std::chrono::milliseconds(1);
 
-AsyncFrameListener::AsyncFrameListener(std::shared_ptr<INetworkClient> networkClient): logger_("AsyncFrameListener")
+AsyncFrameListener::AsyncFrameListener(std::shared_ptr<INetworkClient> networkClient, int alg): logger_("AsyncFrameListener")
   , networkClient_(networkClient)
+  , algorithm_(alg)
   , stop_(true)
   , cb_(nullptr)
   , asyncTask_()
@@ -98,14 +101,35 @@ void AsyncFrameListener::asyncLoop()
   }
   logger_->debug("Going to receive {} data for {}x{} frame",
     header.payload, header.width, header.height);
-  std::unique_ptr<uint8_t[]> buff(new uint8_t[header.payload]);
-  result = networkClient_->receive(buff.get(), header.payload);
+  std::vector<uint8_t> buff(header.payload);
+  result = networkClient_->receive(buff.data(), header.payload);
   if (result != header.payload)
   {
     logger_->warn("received {} instead of {}", result, header.payload);
   }
   if (!cb_) return;
-  cv::Mat frame(header.height, header.width, CV_8UC1, cv::Scalar(0));
-  std::memcpy(frame.data, buff.get(), result);
-  cb_(frame);
+  cb_(decodeFrame(header, buff));
+}
+
+cv::Mat AsyncFrameListener::decodeFrame(const MsgHeader& h, const std::vector<uint8_t>& data)
+{
+  if (algorithm_ == NONE)
+  {
+    cv::Mat frame(h.height, h.width, CV_8UC1, cv::Scalar(0));
+    std::memcpy(frame.data, data.data(), data.size());
+    return frame;
+  }
+  else if (algorithm_ == JPEG)
+  {
+    return cv::imdecode(data, cv::IMREAD_UNCHANGED);
+  }
+  else if (algorithm_ == PNG)
+  {
+    return cv::imdecode(data, cv::IMREAD_UNCHANGED);
+  }
+  else
+  {
+    logger_->warn("Unrecognized algorithm");
+    throw std::runtime_error("Unrecognized algorithm");
+  }
 }

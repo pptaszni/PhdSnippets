@@ -31,7 +31,9 @@ int main(int argc, char** argv)
     ("fps", po::value<float>()->default_value(1.0),
       "frames per second to be used with compression algorithms")
     ("scale", po::value<int>()->default_value(20),
-      "resize the images by scale");
+      "resize the images by scale")
+    ("algorithm", po::value<int>()->default_value(1),
+      "type of compression algorithm");
   po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, desc), vm);
   po::notify(vm);
@@ -46,7 +48,10 @@ int main(int argc, char** argv)
   }
   float fps = vm["fps"].as<float>();
   int scale = vm["scale"].as<int>();
-  UnderwaterRobot robot(std::make_shared<UDPServer>(PORT), {fps, scale, vm["frames_dir"].as<std::string>()});
+  auto framesDir = vm["frames_dir"].as<std::string>();
+  int alg = vm["algorithm"].as<int>();
+  UnderwaterRobot robot(std::make_shared<UDPServer>(PORT),
+    {fps, scale, framesDir, alg});
   if (!robot.start())
   {
     return -1;

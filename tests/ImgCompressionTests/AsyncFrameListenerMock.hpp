@@ -10,7 +10,7 @@
 
 class AsyncFrameListenerMock : public AsyncFrameListener {
  public:
-  AsyncFrameListenerMock(): AsyncFrameListener(nullptr) {}
+  AsyncFrameListenerMock(): AsyncFrameListener(nullptr, 0) {}
   MOCK_METHOD1(setOnFrameCallback,
       void(Callback cb));
   MOCK_METHOD0(start,

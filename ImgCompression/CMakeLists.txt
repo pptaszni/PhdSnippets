@@ -45,6 +45,7 @@ target_link_libraries(compression_alg_comparison
 
 add_executable(frames_compression_gui src/gui.cpp)
 target_link_libraries(frames_compression_gui
+  ${Boost_LIBRARIES}
   ImgCompression
 )
 

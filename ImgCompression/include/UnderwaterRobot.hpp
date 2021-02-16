@@ -7,6 +7,8 @@
 #include "Logger.hpp"
 #include "ROI.hpp"
 
+#include <opencv2/core.hpp>
+
 #include <atomic>
 #include <future>
 #include <memory>
@@ -17,6 +19,7 @@ struct UnderwaterRobotSettings
   float fps;
   int imgScale;
   std::string framesDir;
+  int compressionAlg;
 };
 
 class UnderwaterRobot
@@ -28,6 +31,7 @@ public:
 
 private:
   void publisherLoop();
+  std::vector<uint8_t> encodeFrame(cv::Mat m);
   Logger logger_;
   std::shared_ptr<INetworkServer> publisher_;
   UnderwaterRobotSettings settings_;

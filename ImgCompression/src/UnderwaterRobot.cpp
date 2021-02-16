@@ -4,6 +4,7 @@
 
 #include "UnderwaterRobot.hpp"
 #include "MsgHeader.hpp"
+#include "CompressionAlgorithmTypes.hpp"
 
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
@@ -98,13 +99,41 @@ void UnderwaterRobot::publisherLoop()
 {
     cv::Mat m = cutFrameToRoi(framesSource_.getNextFrame(), roi_);
     cv::cvtColor(m, m, cv::COLOR_BGR2GRAY);
-    std::vector<uint8_t> experimentalBuff;
-    cv::imencode(".jp2", m, experimentalBuff);
-    std::cout << "Buff size: " << experimentalBuff.size() << std::endl;
-    MsgHeader h{(uint16_t)m.total(), (uint16_t)m.size().width, (uint16_t)m.size().height, 0};
+    auto buff = encodeFrame(m);
+    MsgHeader h{(uint16_t)buff.size(), (uint16_t)m.size().width, (uint16_t)m.size().height, 0};
     h.crc = h.calculateCrc();
     publisher_->send((uint8_t*)&h, sizeof(h));
-    publisher_->send(m.data, m.total());
+    publisher_->send(buff.data(), buff.size());
     cv::imshow("Preview", m);
     cv::waitKey(0);
+}
+
+std::vector<uint8_t> UnderwaterRobot::encodeFrame(cv::Mat m)
+{
+  std::vector<uint8_t> buff;
+  if (settings_.compressionAlg == NONE)
+  {
+    buff.resize(m.total());
+    std::memcpy(buff.data(), m.data, m.total());
+    return buff;
+  }
+  else if (settings_.compressionAlg == JPEG)
+  {
+    std::vector<int> params({cv::IMWRITE_JPEG_QUALITY, 15});
+    cv::imencode(".jpeg", m, buff, params);
+    logger_->debug("Buff size = {}", buff.size());
+    return buff;
+  }
+  else if (settings_.compressionAlg == PNG)
+  {
+    std::vector<int> params({cv::IMWRITE_PNG_COMPRESSION, 9});
+    cv::imencode(".png", m, buff, params);
+    logger_->debug("Buff size = {}", buff.size());
+    return buff;
+  }
+  else
+  {
+    logger_->warn("Unrecognized algorithm");
+    throw std::runtime_error("Unrecognized algorithm");
+  }
 }
