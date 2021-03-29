@@ -5,6 +5,7 @@
 #include "UnderwaterRobot.hpp"
 #include "MsgHeader.hpp"
 #include "CompressionAlgorithmTypes.hpp"
+#include "SemanticCompression.hpp"
 
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
@@ -104,12 +105,13 @@ void UnderwaterRobot::publisherLoop()
     h.crc = h.calculateCrc();
     publisher_->send((uint8_t*)&h, sizeof(h));
     publisher_->send(buff.data(), buff.size());
-    cv::imshow("Preview", m);
-    cv::waitKey(0);
+    // cv::imshow("Preview", m);
+    // cv::waitKey(0);
 }
 
 std::vector<uint8_t> UnderwaterRobot::encodeFrame(cv::Mat m)
 {
+  detectionTest(m);
   std::vector<uint8_t> buff;
   if (settings_.compressionAlg == NONE)
   {

@@ -2,6 +2,8 @@
  * /author Pawel Ptasznik
  */
 
+#pragma once
+
 #include "FramesFromDir.hpp"
 #include "INetworkServer.hpp"
 #include "Logger.hpp"

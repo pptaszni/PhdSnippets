@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(OpenCV REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system program_options)
 find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
+find_package(spdlog REQUIRED)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
@@ -21,6 +22,7 @@ add_library(ImgCompression SHARED
   src/Logger.cpp
   src/MainWindow.cpp
   src/ROI.cpp
+  src/SemanticCompression.cpp
   src/UDPClient.cpp
   src/UDPServer.cpp
   src/UnderwaterRobot.cpp
@@ -32,7 +34,7 @@ target_link_libraries(ImgCompression
   Qt5::Widgets
   stdc++fs
   x265
-  spdlog
+  spdlog::spdlog
 )
 
 add_executable(compression_alg_comparison src/main.cpp)

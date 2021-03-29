@@ -9,6 +9,7 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
 UDPClient::UDPClient(const std::string& addr, int port): logger_("UDPClient")
   , addr_(addr)
