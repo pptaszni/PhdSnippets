@@ -4,6 +4,7 @@
 
 #include "AsyncFrameListener.hpp"
 #include "CompressionAlgorithmTypes.hpp"
+#include "SemanticCompression.hpp"
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
@@ -126,6 +127,10 @@ cv::Mat AsyncFrameListener::decodeFrame(const MsgHeader& h, const std::vector<ui
   else if (algorithm_ == PNG)
   {
     return cv::imdecode(data, cv::IMREAD_UNCHANGED);
+  }
+  else if (algorithm_ == SEMANTIC)
+  {
+    return surfDecode(data);
   }
   else
   {

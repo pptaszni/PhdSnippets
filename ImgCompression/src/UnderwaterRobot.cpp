@@ -39,7 +39,7 @@ UnderwaterRobot::UnderwaterRobot(std::shared_ptr<INetworkServer> publisher, Unde
   logger_{ "UnderwaterRobot" }
   , publisher_{ publisher}
   , settings_{ settings }
-  , framesSource_{ settings_.framesDir, settings_.fps, settings_.imgScale }
+  , framesSource_{ settings_.framesDir, settings_.fps, 1 }
   , stop_{ true }
   , roi_{ 0, 0, 0, 0 }
 {
@@ -111,16 +111,17 @@ void UnderwaterRobot::publisherLoop()
 
 std::vector<uint8_t> UnderwaterRobot::encodeFrame(cv::Mat m)
 {
-  detectionTest(m);
   std::vector<uint8_t> buff;
   if (settings_.compressionAlg == NONE)
   {
+    cv::resize(m, m, m.size()/settings_.imgScale);
     buff.resize(m.total());
     std::memcpy(buff.data(), m.data, m.total());
     return buff;
   }
   else if (settings_.compressionAlg == JPEG)
   {
+    cv::resize(m, m, m.size()/settings_.imgScale);
     std::vector<int> params({cv::IMWRITE_JPEG_QUALITY, 15});
     cv::imencode(".jpeg", m, buff, params);
     logger_->debug("Buff size = {}", buff.size());
@@ -128,8 +129,27 @@ std::vector<uint8_t> UnderwaterRobot::encodeFrame(cv::Mat m)
   }
   else if (settings_.compressionAlg == PNG)
   {
+    cv::resize(m, m, m.size()/settings_.imgScale);
     std::vector<int> params({cv::IMWRITE_PNG_COMPRESSION, 9});
     cv::imencode(".png", m, buff, params);
+    logger_->debug("Buff size = {}", buff.size());
+    return buff;
+  }
+  else if (settings_.compressionAlg == SEMANTIC)
+  {
+    std::vector<cv::Point2f> objCorners = surfDetectionTest(m);
+    if (objCorners.size() != 4)
+    {
+      logger_->warn("Something wrong with corners detection: {}", objCorners.size());
+      objCorners.resize(4);
+    }
+    cv::resize(m, m, m.size()/settings_.imgScale);
+    std::vector<int> params({cv::IMWRITE_JPEG_QUALITY, 15});
+    cv::imencode(".jpeg", m, buff, params);
+    size_t frameOffset = buff.size();
+    size_t cornersSize = sizeof(cv::Point2f)*objCorners.size();
+    buff.resize(frameOffset + cornersSize);
+    std::memcpy(buff.data() + frameOffset, objCorners.data(), cornersSize);
     logger_->debug("Buff size = {}", buff.size());
     return buff;
   }
